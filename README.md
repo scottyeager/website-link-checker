@@ -85,3 +85,20 @@ jobs:
           args: 'https://example.com -e 404 -w all'
 ```
 
+## Web App
+
+There is a basic web application included that takes the user input through a form and renders the results in HTML. This consists of a service that wraps the core functionality of the script into an http endpoint, and a bit of Javascript to call the service and insert the output into a web page.
+
+### Install Flask
+
+To use the web app, the Python package `flask` is an additional requirement. On Linux, a package called `python-flask` or `python3-flask` is probably available from the system package manager. Otherwise, it can be installed with: `pip install flask`
+
+### Usage
+
+First, start up the endpoint service like this:
+
+```
+flask run
+```
+
+Then open `index.html` in your browser.

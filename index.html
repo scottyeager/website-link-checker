@@ -1,0 +1,118 @@
+<html>
+    <head>
+        <title>Check some links</title>
+    </head>
+    <body>
+            <label for="url">URL of site to check:</label><br>
+            <input type="text" id="url" name="url" value="https://example.com"><br><br>
+            <input type="submit" onClick="checkLinks()" value="Submit">
+
+    <style>
+        table { border-collapse: collapse; border: 1px solid #565656; margin-top: 1em; width: 100%; }
+        td { padding: 0.6em 0.3em; border: 1px solid #dfdfdf; }
+        .headings { font-weight: 700; background-color: #dfdfdf; }
+        button:hover { cursor: pointer; }
+    </style>
+    <script>
+        // async function
+        async function fetchAsync (url) {
+            // await response of fetch call
+            let response = await fetch(url);
+            // only proceed once promise is resolved
+            let data = await response.json();
+            // only proceed once second promise is resolved
+            return data;
+        }
+
+        // trigger async function
+        // log response or catch error of fetch promise
+        function checkLinks() {
+            url = document.getElementById('url').value
+            fetchAsync('http://127.0.0.1:5000/' + encodeURI(url))
+                .then(data => document.body.insertAdjacentHTML('beforeend', formatData(data)))
+                .catch(reason => console.log(reason.message))
+        }
+
+        function formatData(data) {
+            let output = []
+            for (const url in data) {
+                output.push('<h1>' + url + '</h1>')
+                if (data[url].errors.length > 0) {
+                    output.push('<h2>Errors</h2>')
+                    for (error of data[url].errors) {
+                        output.push(error[0] + ' ' + error[1])
+                    }
+                }
+                if (data[url].warnings.length > 0) {
+                    output.push('<h2>warnings</h2>')
+                    for (warning of data[url].warnings) {
+                        output.push(warning[0] + ' ' + warning[1])
+                    }
+                }
+            }
+            return output.join('')
+        }
+
+
+        /////////////////////////////////////////////////////////
+        // Example code for building table. Not using currently
+        /////////////////////////////////////////////////////////
+
+        // Calls the API, parses the json, then
+        // calls createTable with the data
+        function fetchData() {
+        button.textContent = 'Loading...';
+        button.disabled = true;
+        mockApi()
+            .then(res => JSON.parse(res))
+            .then(createTable);
+        }
+
+        // `map` over the keys of first object
+        // in the array, and return a string of HTML
+        function getColumnHeadings(data) {
+        return Object.keys(data[0]).map(key => {
+            return `<td>${key}</td>`;
+        }).join('');
+        }
+
+        // `map` over each object in the array,
+        // and return a string of HTML. It calls
+        // `getCells` on each object
+        function getRows(data) {
+        return data.map(obj => {
+            return `<tr>${getCells(obj)}</tr>`
+        }).join('');
+        }
+
+        // `map` over the values of an object
+        // and return a string of HTML
+        function getCells(obj) {
+        return Object.values(obj).map(value => {
+            return `<td>${value}</td>`;
+        }).join('');
+        }
+
+        function createTable(data) {
+        
+        // Get the headings, and the rows
+        const headings = getColumnHeadings(data);
+        const rows = getRows(data);
+
+        // Create an HTML string
+        const html = `
+            <table>
+            <tbody>
+                <tr class="headings">${headings}</tr>
+                ${rows}
+            </tbody>
+            </table>
+        `
+
+        // Add the string to the DOM
+        document.body.insertAdjacentHTML('beforeend', html);
+
+        }
+    </script>
+    </body>
+</html>
